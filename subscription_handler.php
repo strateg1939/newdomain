@@ -1,6 +1,6 @@
 <?php
   /* 
- Template Name: Subscribtion handle
+ Template Name: Subscription handle
  */  
  get_header();
  if(count($_POST) == 1){
@@ -19,17 +19,17 @@
 	}
 	else{
 		$wpdb->query("INSERT INTO `connection_user_topic`(`user_ID`, `topic_ID`) VALUES ($user_ID, (SELECT `topic_ID` FROM `topics` WHERE `topic_name` = '$value'));");
-		$articles_to_send = $wpdb->get_results("SELECT `article_ID`,`article_text` FROM `articles` WHERE `article_ID` NOT IN (SELECT `article_ID` FROM `connection_user_article` WHERE `user_ID` = $user_id) AND `day` = CURRENT_DATE  AND `topic_ID` IN (SELECT `topic_ID` FROM `connection_user_topic` WHERE `user_ID` = $user_id); ", ARRAY_A);
+		$articles_to_send = $wpdb->get_results("SELECT `article_ID`,`article_text` FROM `articles` WHERE `article_ID` NOT IN (SELECT `article_ID` FROM `connection_user_article` WHERE `user_ID` = $user_id) AND `day` = CURRENT_DATE  AND `topic_ID` IN (SELECT `topic_ID` FROM `topics` WHERE `topic_name` = '$value'); ", ARRAY_A);
 		foreach ($articles_to_send as $article) {
 			$wpdb->query("INSERT INTO `connection_user_article` (user_ID, article_ID) VALUES ($user_id, $article[article_ID]);");
-			//if(!wp_mail($user_mail, "Your daily $value article", $article[article_text])) echo "failure";
+			if(!wp_mail($user_mail, "Your daily $value article", $article[article_text])) echo "failure";
 
 
 		}
 	}
  } 
 
- echo "Your subscribtion were changed";
+ echo "Your subscriptions were changed";
  echo '<p><a href = '.home_url().'>return to home page</a></p>';
  get_footer();
 
