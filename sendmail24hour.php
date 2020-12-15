@@ -16,21 +16,44 @@ function my_activation() {
 add_action( 'my_daily_event', 'send_mail_to_subs' );
 function send_mail_to_subs(){
 	global $wpdb;
-	$topics = $wpdb->get_col('SELECT `topic_name` FROM `topics`;');
-	foreach ($topics as $topic) {
-		$users = $wpdb->get_col("SELECT `user_ID` FROM `connection_user_topic` WHERE topic_ID = (SELECT `topic_ID` FROM `topics` WHERE `topic_name` = '$topic');");
-		foreach ($users as $user) {
-			$user_mail = $wpdb->get_var("SELECT `user_email` FROM `wp_users` WHERE `ID` = $user");
-			$articles_to_send = $wpdb->get_results("SELECT `article_ID`,`article_text` FROM `articles` WHERE `article_ID` NOT IN (SELECT `article_ID` FROM `connection_user_article` WHERE `user_ID` = $user) AND `day` = CURRENT_DATE  AND `topic_ID` = (SELECT `topic_ID` FROM `topics` WHERE `topic_name` = '$topic');", ARRAY_A);
-			foreach ($articles_to_send as $article) {
-				$wpdb->query("INSERT INTO `connection_user_article` (user_ID, article_ID) VALUES ($user, $article[article_ID]);");
-				wp_mail($user_mail, "Your daily $topic article", $article[article_text]);
-			}
-
-		}
+	require_once("sendmailfunc.php");
+	$mails_to_send = $wpdb->get_results("SELECT topics.topic_ID, topics.topic_name, connection_user_topic.user_ID, wp_users.user_email FROM ((topics INNER JOIN connection_user_topic ON topics.topic_ID = connection_user_topic.topic_ID) INNER JOIN wp_users ON connection_user_topic.user_ID = wp_users.ID)", ARRAY_A);
+	foreach ($mails_to_send as $mail) {
+			send_mail_subs($mail[user_ID], $mail[user_email],$mail[topic_name], $mail[topic_ID]);
 	}
+
 }
+
+
 register_deactivation_hook( __FILE__, 'my_deactivation' );
 function my_deactivation(){
 	wp_clear_scheduled_hook( 'my_daily_event' );
+}
+
+
+
+add_action( 'rest_api_init', function () {
+  register_rest_route( 'sendsubs/v1', 'user/(?P<id>\d+)', array(
+    'methods' => 'POST',
+    'callback' => 'change_subscriptions',
+  ) );
+} );
+
+function change_subscriptions($data) {
+	global $wpdb;
+    require_once("sendmailfunc.php");
+ 	$subscription =  $data->get_json_params();
+ 	$user_mail = $subscription[mail];
+ 	for ($i = 0;$i < count($subscription[to_subscribe]); $i++) {
+ 		$topic_name = $subscription[to_subscribe][$i];
+ 		$topic_id = $subscription[to_subscribe_id][$i];
+ 		$wpdb->query("INSERT INTO `connection_user_topic`(`user_ID`, `topic_ID`) VALUES ($data[id], $topic_id);");
+		send_mail_subs($data['id'], $user_mail, $topic_name, $topic_id);
+ 	}
+ 	for ($i = 0;$i < count($subscription[to_unsubscribe]); $i++) {
+ 		$topic_name = $subscription[to_unsubscribe][$i];
+ 		$topic_id = $subscription[to_unsubscribe_id][$i];
+ 		$wpdb->query("DELETE FROM `connection_user_topic` WHERE topic_ID =  $topic_id AND user_ID = $data[id];");
+ 	}
+ 	return "success";
 }
