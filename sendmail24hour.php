@@ -44,15 +44,13 @@ function change_subscriptions($data) {
     require_once("sendmailfunc.php");
  	$subscription =  $data->get_json_params();
  	$user_mail = $subscription[mail];
- 	for ($i = 0;$i < count($subscription[to_subscribe]); $i++) {
- 		$topic_name = $subscription[to_subscribe][$i];
- 		$topic_id = $subscription[to_subscribe_id][$i];
+ 	foreach ($subscription[to_subscribe] as $topic_id => $topic_name) {
  		$wpdb->query("INSERT INTO `connection_user_topic`(`user_ID`, `topic_ID`) VALUES ($data[id], $topic_id);");
 		send_mail_subs($data['id'], $user_mail, $topic_name, $topic_id);
  	}
- 	for ($i = 0;$i < count($subscription[to_unsubscribe]); $i++) {
- 		$topic_name = $subscription[to_unsubscribe][$i];
- 		$topic_id = $subscription[to_unsubscribe_id][$i];
+ 	unset($topic_id);
+ 	unset($topic_name);
+ 	foreach ($subscription[to_unsubscribe] as $topic_id => $topic_name) {
  		$wpdb->query("DELETE FROM `connection_user_topic` WHERE topic_ID =  $topic_id AND user_ID = $data[id];");
  	}
  	return "success";
