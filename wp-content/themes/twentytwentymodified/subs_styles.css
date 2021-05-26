@@ -1,0 +1,85 @@
+/*for subsription form */
+#subs_submit {
+  text-decoration: none;
+  outline: none;
+  display: inline-block;
+  width: 140px;
+  height: 45px;
+  line-height: 15px;
+  border-radius: 45px;
+  margin: 10px 10px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 15px;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 3px;
+  font-weight: 600;
+  color: #524f4e;
+  background: white;
+  box-shadow: 0 8px 15px rgba(0,0,0,.1);
+  transition: .3s;
+}
+
+#subs_submit:hover {
+  background:#e5b42e;
+  box-shadow: 0 15px 20px rgba(229, 180, 46,.4);
+  color: white;
+  transform: translateY(-7px);
+}
+.checkbox_text{
+	position:relative;
+	display:inline;
+	left: 40px;
+	font-family: "Montserrat", sans-serif;
+	font-size: 19px;
+}
+#another_text{
+	left:25px;
+}
+.option-input {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  bottom: 20px;
+  left: 30px;
+  -ms-transform: scale(2); /* IE */
+  -moz-transform: scale(2); /* FF */
+  -webkit-transform: scale(2); /* Safari and Chrome */
+  -o-transform: scale(2); /* Opera */
+  transform: scale(2);
+  transition: all 0.15s ease-out 0s;
+  background: #cbd1d8;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+
+  outline: none;
+  z-index: 1000;
+}
+.option-input:hover {
+  background: #9faab7;
+}
+.option-input:checked {
+  background: #40e0d0;
+}
+.option-input:checked::before {
+  height: 60px;
+  width: 60px;
+  position: absolute;
+  content: "✔";
+  display: inline-block;
+  font-size: 26.66667px;
+  text-align: center;
+  line-height: 10px;
+}
+.option-input:checked::after {
+  -webkit-animation: click-wave 0.65s;
+  -moz-animation: click-wave 0.65s;
+  animation: click-wave 0.65s;
+  background: #40e0d0;
+  content: "";
+  display: block;
+  position: relative;
+  z-index: 100;
+}
